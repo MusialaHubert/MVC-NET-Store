@@ -1,0 +1,91 @@
+﻿@model List<Shop.ViewModels.CartArticleModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Cart</h1>
+
+<p>@ViewBag.Message</p>
+
+@{
+    if (Model.Count != 0)
+    {
+        <form asp-controller="Cart" asp-action="RedirectToOrderOptions">
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Sumbit Order</button>
+            </div>
+        </form>
+    }
+}
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                Category
+            </th>
+            <th>
+                Photo
+            </th>
+            <th>
+                Quantity
+            </th>
+            <th>
+                Price for one
+            </th>
+            <th>
+                Price
+            </th>
+            <th>
+                Actions
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Article.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Article.Category.Name)
+                </td>
+
+                <td>
+                    @{
+                        var path = "~/image/no-photo.jpg";
+                        if (item.Article.Photo != "")
+                        {
+                            path = "~/upload/" + item.Article.Photo;
+                        }
+                    }
+                    <img src="@path" asp-append-version="true" width="200px" height="200px" />
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Quantity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Article.Price)
+                </td>
+                <td>
+                    @{
+                        var price = item.Article.Price * item.Quantity;
+                    }
+                    @price
+                </td>
+                <td>
+                    <a asp-action="AddToCart" asp-route-id="@item.Article.Id">Add one</a> |
+                    <a asp-action="RemoveFromCart" asp-route-id="@item.Article.Id">Remove one</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Article.Id">Remove all</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

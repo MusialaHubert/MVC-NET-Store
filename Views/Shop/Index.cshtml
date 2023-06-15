@@ -1,0 +1,143 @@
+﻿@model Shop.ViewModels.ProductsListViewModel
+
+@{
+    ViewData["Title"] = "Shop";
+}
+
+<h1>Shop</h1>
+<form asp-action="Index">
+    <div class="form-group">
+        <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId"></select>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Filter" class="btn btn-primary" />
+    </div>
+</form>
+
+
+<table class="table" id="myTable">
+    <thead>
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                Price
+            </th>
+            <th>
+                Photo
+            </th>
+            <th>
+                Category
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Articles) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Price)
+            </td>
+            <td>
+                @{
+                    var path = "~/image/no-photo.jpg";
+                    if (item.Photo != "")
+                    {
+                        path = "~/upload/" + item.Photo;
+                    }
+                }
+                <img src="@path" asp-append-version="true" width="200px" height="200px" />
+            </td>           
+            <td>
+                <button type="button" id="btnScore" class="btn btn-primary" onclick="IncrementCount('@item.Id')">                  
+                    Add to cart
+                </button>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+<div>
+    <button type="button" class="btn btn-primary" onclick="loadNextPhotos()"> Load More articles </button> 
+</div>
+
+<script>
+    function IncrementCount(id) {
+        $.ajax({
+            type: "POST",
+            url: "/Shop/AddToCart/" + id.toString(),
+            async: true,
+            success: function () {
+                console.log("sukces");
+            },
+            error: function () {
+                console.log("error");
+            }
+        });
+    }
+
+    function loadNextPhotos() {
+        const xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+            if (this.status === 200) {
+                try {
+                    const articles = JSON.parse(this.responseText);
+                    if (articles.length === 0) {
+                        window.alert("Nie ma więcej produktów do wczytania");
+                    }
+                    else {
+                        for (const elem in articles) {
+                            console.log(articles[elem]);
+                            let row = table.insertRow(-1)
+                            let cell = row.insertCell(0)
+                            let cell1 = row.insertCell(1)
+                            let cell2 = row.insertCell(2)
+                            let cell3 = row.insertCell(3)
+
+                            cell.innerHTML = articles[elem].name
+                            cell1.innerHTML = articles[elem].price
+
+                            let photo = document.createElement("img");
+                            let path = location.href + "image/no-photo.jpg"
+
+                            if (articles[elem].photo != "") {
+                                path = location.href + "upload/" + articles[elem].photo;
+                            }
+
+                            photo.src = path
+                            photo.style.width = '200px';
+                            photo.style.height = '200px';
+                            cell2.appendChild(photo);
+
+                            let button = document.createElement("button");
+                            button.type = 'button';
+                            button.innerText = "Add to cart";
+                            button.classList.add("btn-primary", "btn");
+                            button.onclick = () => {
+                                IncrementCount(articles[elem].id)
+                            };
+                            cell3.appendChild(button);
+                        }
+
+                    }
+                }
+                catch (e) {
+                    window.alert("Error")
+                }
+            }
+        }
+
+
+        let table = document.getElementById("myTable");
+        let tableTbodyRowCount = table.rows.length - 1;
+
+        let str = "/api/article/@Model.CategoryId.ToString()/" + tableTbodyRowCount.toString();
+        xhr.open("get", str);
+        xhr.send();
+    };
+</script>

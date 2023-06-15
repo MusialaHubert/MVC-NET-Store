@@ -1,0 +1,101 @@
+﻿@model Shop.ViewModels.OrderView
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Order</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <form enctype="multipart/form-data" asp-action="Index" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Town" class="control-label"></label>
+                <input asp-for="Town" class="form-control" />
+                <span asp-validation-for="Town" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Street" class="control-label"></label>
+                <input asp-for="Street" class="form-control" />
+                <span asp-validation-for="Street" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Number" class="control-label"></label>
+                <input asp-for="Number" class="form-control" />
+                <span asp-validation-for="Number" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ZipCode" class="control-label"></label>
+                <input asp-for="ZipCode" class="form-control" />
+                <span asp-validation-for="ZipCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>Delivery</label>
+                <select asp-for="DeliveryId" class="form-control" asp-items="ViewBag.Deliveries"></select>
+            </div>
+            <div class="form-group">
+                <label>Payment</label>
+                <select asp-for="PaymentId" class="form-control" asp-items="ViewBag.Payments"></select>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Buy</button>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-8">
+        <h4>Cart value: @ViewBag.CartCost zł</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        Name
+                    </th>
+                    <th>
+                        Category
+                    </th>
+                    <th>
+                        Quantity
+                    </th>
+                    <th>
+                        Price for one
+                    </th>
+                    <th>
+                        Price
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Articles)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Article.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Article.Category.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Quantity)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Article.Price)
+                        </td>
+                        <td>
+                            @{
+                                var price = item.Article.Price * item.Quantity;
+                            }
+                            @price
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
